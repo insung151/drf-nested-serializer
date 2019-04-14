@@ -1,0 +1,26 @@
+language: python
+dist: xenial
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+env:
+  - DJANGO_VERSION=1.11.* DRF_VERSION=3.7.*
+  - DJANGO_VERSION=1.11.* DRF_VERSION=3.8.*
+  - DJANGO_VERSION=2.0.* DRF_VERSION=3.7.*
+  - DJANGO_VERSION=2.0.* DRF_VERSION=3.8.*
+
+install:
+  - pip install coveralls
+  - pip install -q Django==$DJANGO_VERSION djangorestframework==$DRF_VERSION
+
+script:
+  - coverage run --source=drf_nested_serializer setup.py test
+
+matrix:
+  exclude:
+    - python: "2.7"
+      env: DJANGO_VERSION=2.0.* DRF_VERSION=3.7.*
+    - python: "2.7"
+      env: DJANGO_VERSION=2.0.* DRF_VERSION=3.8.*

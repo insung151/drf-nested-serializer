@@ -8,12 +8,12 @@ def serializer_factory(model, serializer=serializers.ModelSerializer):
     attrs = {'Meta': meta_class}
     return type(model.__class__.__name__ + 'Serializer', (serializer,), attrs)
 
+
 class NestedModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(NestedModelSerializer, self).__init__(*args, **kwargs)
 
-    def is_valid(self, raise_exception=False):
-        # remove nested fields for validation
+    def _pop_nested_fields(self):
         for field_name, related_name in self.Meta.nested_fields.items():
             nested_serializer = self.fields[field_name]
             nested_serializer.child._writable_fields = [
@@ -21,13 +21,17 @@ class NestedModelSerializer(serializers.ModelSerializer):
                 if not nested_field.read_only and nested_field_name != related_name
             ]
 
-        is_valid = super(NestedModelSerializer, self).is_valid(raise_exception)
-
+    def _insert_nested_fields(self):
         for field_name, related_name in self.Meta.nested_fields.items():
             nested_serializer = self.fields[field_name]
             nested_serializer.child._writable_fields.append(
                 nested_serializer.child.fields[self.Meta.nested_fields[field_name]]
             )
+
+    def is_valid(self, raise_exception=False):
+        self._pop_nested_fields()
+        is_valid = super(NestedModelSerializer, self).is_valid(raise_exception)
+        self._insert_nested_fields()
         return is_valid
 
     def get_field_names(self, declared_fields, info):
