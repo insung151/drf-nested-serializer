@@ -3,6 +3,11 @@
 # DRF Nested Serializer
 Nested Serializer support for Django Rest Framework.
 
+## Installation
+```
+pip install drf-nested-serializer
+```
+
 ## Example
 ```python
 class Goods(models.Model):
