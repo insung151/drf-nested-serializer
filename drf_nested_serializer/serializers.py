@@ -1,6 +1,8 @@
 from django.db import transaction, router
+from django.db.models import ManyToOneRel
+from django.db.models.fields.related_descriptors import ForwardOneToOneDescriptor
 from rest_framework import serializers
-from rest_framework.serializers import ListSerializer
+from rest_framework.serializers import ListSerializer, BaseSerializer, ModelSerializer
 
 
 def serializer_factory(model, serializer=serializers.ModelSerializer):
@@ -16,17 +18,22 @@ class NestedModelSerializer(serializers.ModelSerializer):
     def _pop_nested_fields(self):
         for field_name, related_name in self.Meta.nested_fields.items():
             nested_serializer = self.fields[field_name]
-            nested_serializer.child._writable_fields = [
-                nested_field for nested_field_name, nested_field in nested_serializer.child.fields.items()
+            if isinstance(nested_serializer, ListSerializer):
+                nested_serializer = nested_serializer.child
+            nested_serializer._writable_fields = [
+                nested_field for nested_field_name, nested_field in nested_serializer.fields.items()
                 if not nested_field.read_only and nested_field_name != related_name
             ]
 
     def _insert_nested_fields(self):
-        for field_name, related_name in self.Meta.nested_fields.items():
+        for field_name, reverse_name in self.Meta.nested_fields.items():
             nested_serializer = self.fields[field_name]
-            nested_serializer.child._writable_fields.append(
-                nested_serializer.child.fields[self.Meta.nested_fields[field_name]]
-            )
+            if isinstance(nested_serializer, ListSerializer):
+                nested_serializer = nested_serializer.child
+            if not isinstance(getattr(self.Meta.model, field_name), ForwardOneToOneDescriptor):
+                nested_serializer._writable_fields.append(
+                    nested_serializer.fields[reverse_name]
+                )
 
     def is_valid(self, raise_exception=False):
         self._pop_nested_fields()
@@ -58,12 +65,14 @@ class NestedModelSerializer(serializers.ModelSerializer):
                 )
             )
 
-            if field_name not in self._declared_fields and \
-                    not isinstance(fields[field_name], ListSerializer):
-                related_model =  getattr(self.Meta.model, field_name).rel.related_model
-                fields[field_name] = serializer_factory(model=related_model)(many=True, required=False)
+            if field_name not in self._declared_fields:
+                related_field = self.Meta.model._meta.get_field(field_name)
+                related_model = related_field.related_model
+                many = not related_field.one_to_one
+                fields[field_name] = serializer_factory(model=related_model)(many=many, required=False)
 
-            assert isinstance(fields[field_name], ListSerializer), (
+            assert isinstance(fields[field_name], ListSerializer) \
+                   or isinstance(fields[field_name], ModelSerializer), (
                 "{field_name} must be a 'ListSerializer' instance".format(
                     field_name=field_name
                 )
@@ -86,8 +95,17 @@ class NestedModelSerializer(serializers.ModelSerializer):
 
         # Create nested objects
         for nested_field_name, nested_field_data in nested_fields.items():
-            for data in nested_field_data:
-                data.update({self.Meta.nested_fields[nested_field_name]: instance.pk})
+            related_field = self.Meta.model._meta.get_field(nested_field_name)
+            many = not related_field.one_to_one
+            is_m2m = related_field.many_to_many
+            if many:
+                for data in nested_field_data:
+                    if is_m2m:
+                        data.update({self.Meta.nested_fields[nested_field_name]: [instance.pk]})
+                    else:
+                        data.update({self.Meta.nested_fields[nested_field_name]: instance.pk})
+            else:
+                nested_field_data.update({self.Meta.nested_fields[nested_field_name]: instance.pk})
         for field_name, field in nested_fields.items():
             serializer = self.fields[field_name]
             serializer.initial_data = nested_fields[field_name]
