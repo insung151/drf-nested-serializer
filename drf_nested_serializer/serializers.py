@@ -1,8 +1,7 @@
 from django.db import transaction, router
-from django.db.models import ManyToOneRel
 from django.db.models.fields.related_descriptors import ForwardOneToOneDescriptor
 from rest_framework import serializers
-from rest_framework.serializers import ListSerializer, BaseSerializer, ModelSerializer
+from rest_framework.serializers import ListSerializer, ModelSerializer
 
 
 def serializer_factory(model, serializer=serializers.ModelSerializer):

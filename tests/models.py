@@ -3,12 +3,6 @@ from django.db import models
 
 class SimpleModel(models.Model):
     content = models.CharField(max_length=100)
-    key = models.OneToOneField(
-        'KeyModel',
-        on_delete=models.CASCADE,
-        blank=True, null=True,
-        related_name='simple_model'
-    )
 
 
 class O2ORelatedModel(models.Model):
@@ -34,8 +28,4 @@ class M2MRelatedModel(models.Model):
         SimpleModel,
         related_name='m2m_models'
     )
-    key = models.CharField(max_length=100)
-
-
-class KeyModel(models.Model):
     key = models.CharField(max_length=100)

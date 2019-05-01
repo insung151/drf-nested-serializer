@@ -3,8 +3,8 @@ import json
 from django.test import TestCase, RequestFactory
 from rest_framework import status
 
-from drf_nested_serializer.tests.models import SimpleModel, O2ORelatedModel
-from drf_nested_serializer.tests.views import FKCreateAPIView, M2MCreateAPIView, O2OCreateAPIView, O2OCreateAPIView2
+from .models import SimpleModel, O2ORelatedModel
+from .views import FKCreateAPIView, M2MCreateAPIView, O2OCreateAPIView
 
 
 class DRFNestedSerializerTests(TestCase):

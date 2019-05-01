@@ -9,7 +9,7 @@ from django.test.runner import DiscoverRunner
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 DEFAULT_SETTINGS = dict(
-    ROOT_URLCONF='drf_nested_serializer.tests.urls',
+    ROOT_URLCONF='tests.urls',
     SECRET_KEY="38dh*skf8sjfhs287dh&^hd8&3hdg*j2&sd",
     DEBUG=True,
     DATABASES={
@@ -23,7 +23,7 @@ DEFAULT_SETTINGS = dict(
         'django.contrib.contenttypes',
         'django.contrib.staticfiles',
         'rest_framework',
-        'drf_nested_serializer.tests'
+        'tests'
     ]
 )
 
@@ -32,7 +32,7 @@ def run_tests():
     if not settings.configured:
         settings.configure(**DEFAULT_SETTINGS)
     django.setup()
-    failures = DiscoverRunner(failfast=False).run_tests(['drf_nested_serializer.tests'])
+    failures = DiscoverRunner(failfast=False).run_tests(['tests'])
     sys.exit(bool(failures))
 
 

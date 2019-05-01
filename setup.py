@@ -1,16 +1,17 @@
 from io import open
 
 from setuptools import setup, find_packages
-from drf_nested_serializer import __version__
 
 
 with open('README.md') as f:
     long_description = f.read()
 
+version = '0.0.2'
+
 
 setup(
     name='drf-nested-serializer',
-    version=__version__,
+    version=version,
     url='https://github.com/insung151/drf-nested-serializer',
     description='nested serializer for django-rest-framework',
     license='MIT',
@@ -29,5 +30,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development',
     ],
-    test_suite='tests.run_tests'
+    test_suite='run_tests.run_tests'
 )
