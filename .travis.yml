@@ -12,11 +12,15 @@ env:
   - DJANGO_VERSION=2.0.* DRF_VERSION=3.8.*
 
 install:
-  - pip install coveralls
+  - pip install coverage
+  - pip install python-coveralls
   - pip install -q Django==$DJANGO_VERSION djangorestframework==$DRF_VERSION
 
 script:
   - coverage run --source=drf_nested_serializer setup.py test
+
+after_script:
+  - coveralls
 
 matrix:
   exclude:
