@@ -88,7 +88,8 @@ class NestedModelSerializer(serializers.ModelSerializer):
         nested_fields = {}
         for nested_field_name in self.Meta.nested_fields:
             if nested_field_name in validated_data:
-                nested_fields[nested_field_name] = validated_data.pop(nested_field_name)
+                validated_data.pop(nested_field_name)
+                nested_fields[nested_field_name] = self.initial_data[nested_field_name]
 
         instance = super(NestedModelSerializer, self).create(validated_data)
 
