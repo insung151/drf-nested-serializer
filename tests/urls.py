@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from .views import O2OCreateAPIView
+from .views import ReverseO2OCreateAPIView
 
 urlpatterns = [
-    url('', O2OCreateAPIView.as_view())
+    url('', ReverseO2OCreateAPIView.as_view())
 ]

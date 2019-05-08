@@ -29,3 +29,38 @@ class M2MRelatedModel(models.Model):
         related_name='m2m_models'
     )
     key = models.CharField(max_length=100)
+
+
+class ForwardRelationModel(models.Model):
+    content = models.CharField(max_length=100)
+    o2o = models.OneToOneField(
+        'O2OModel',
+        on_delete=models.CASCADE,
+        related_name='forward_relation_model',
+        blank=True,
+        null=True
+    )
+    fk = models.ForeignKey(
+        'FKModel',
+        on_delete=models.CASCADE,
+        related_name='forward_relation_model',
+        blank=True,
+        null=True
+    )
+    m2m = models.ManyToManyField(
+        'M2MModel',
+        related_name='forward_relation_model',
+        blank=True,
+    )
+
+
+class O2OModel(models.Model):
+    key = models.CharField(max_length=100)
+
+
+class FKModel(models.Model):
+    key = models.CharField(max_length=100)
+
+
+class M2MModel(models.Model):
+    key = models.CharField(max_length=100)
