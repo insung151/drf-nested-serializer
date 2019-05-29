@@ -7,7 +7,7 @@ from rest_framework.serializers import ListSerializer, ModelSerializer
 def serializer_factory(model, serializer=serializers.ModelSerializer):
     meta_class = type('Meta', (), dict(model=model, fields='__all__'))
     attrs = {'Meta': meta_class}
-    return type(model.__class__.__name__ + 'Serializer', (serializer,), attrs)
+    return type('_%sSerializer' % model.__class__.__name__ , (serializer,), attrs)
 
 
 class NestedModelSerializer(serializers.ModelSerializer):
